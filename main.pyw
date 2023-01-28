@@ -1,4 +1,4 @@
-import discord
+import discord#
 import time
 from variables import bannedWords
 from telegram.ext import Updater
