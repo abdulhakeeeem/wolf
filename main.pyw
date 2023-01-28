@@ -1,4 +1,4 @@
-import discord#
+import discord
 import time
 from variables import bannedWords
 from telegram.ext import Updater
@@ -13,14 +13,17 @@ client = discord.Client(intents=intents)
 telegram_bot = Updater("5345322467:AAHxdqp9vzOUZU4CQCHFTfdnrgb0ucCb_Cs")
 
 
-async def sendDm(id, message):
+async def sendDm(id, message, delete=False):
     user = await client.fetch_user(id)
 
     if user is not None:
         if user.dm_channel is None:
             await user.create_dm()
 
-        await user.dm_channel.send(message)
+        if not delete:
+            await user.dm_channel.send(message)
+        else:
+            await user.dm_channel.send(message, delete_after=0.1)
         print(f"Private message sent")
 
 
@@ -121,10 +124,24 @@ async def on_message(message):
             await message.add_reaction("👍")
     except:
         await message.delete()
-        await message.author.timeout(timedelta(seconds=9000))
+        await message.author.timeout(timedelta(seconds=90))
         await message.channel.send(f"<@{message.author.id}> فك البلك يالحقير",delete_after=100)
 
 
+
+
+    if message.author.id == 976490404520288276:
+        return
+    channel = isMeme(message)
+
+    if channel:
+        if await send_video(message, channel):
+            return
+
+    print(f"{message.author}: {message.content}")
+
+    if not message.guild:
+        return
 
     # print(message.guild.roles[0].members)
     roles = [role.id for role in message.author.roles]
@@ -140,15 +157,6 @@ async def on_message(message):
                  await message.channel.send("تم قمع محاولة الانقلاب من الخونه")
 
 
-    if message.author.id == 976490404520288276:
-        return
-    channel = isMeme(message)
-
-    if channel:
-        if await send_video(message, channel):
-            return
-
-    print(f"{message.author}: {message.content}")
 
     for banned in bannedWords:
         if banned.isBanned(message):
@@ -199,6 +207,22 @@ async def on_reaction_add(reaction, user):
 
 
                 #await reaction.message.author.timeout(timedelta(seconds=5))
+
+
+@client.event
+async def on_voice_state_update(member, before, after):
+    user_roles = [role.id for role in member.roles]
+    zgrts_role = 1061702098569408734 # حط رقم الرول
+    if before.channel is None and zgrts_role in user_roles:
+        try:
+            await sendDm(member.id, "لاحظ", delete=True)
+            print("مب مبلك")
+
+        except:
+            print('مبلك')
+            member.timeout(timedelta(seconds=10))
+
+
 @client.event
 async def on_ready():
     print('We have logged in as {0.user}'.format(client))
