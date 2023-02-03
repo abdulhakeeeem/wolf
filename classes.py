@@ -1,5 +1,5 @@
 class Banned:
-    def __init__(self, words, starts, delete, users=None, channels=None, response=None, privMsg=None, privMsgUsers=None, timeout=None, deleteAfter=None):
+    def __init__(self, words, starts, delete, users=None, channels=None, response=None, privMsg=None, privMsgUsers=None, timeout=None, deleteAfter=None, reactions=None):
         self.words = words
         self.starts = tuple(starts) if starts else None
         self.delete = delete
@@ -10,6 +10,7 @@ class Banned:
         self.privMsgUsers = privMsgUsers
         self.timeout = timeout
         self.deleteAfter = deleteAfter
+        self.reactions = reactions
 
     def isBanned(self, message):
 

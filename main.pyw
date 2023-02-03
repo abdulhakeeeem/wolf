@@ -179,6 +179,10 @@ async def on_message(message):
                     await sendDm(message.author.id, banned.privMsg)
             if banned.timeout:
                 await message.author.timeout(timedelta(seconds=banned.timeout))
+
+            if banned.reactions:
+                for reaction in banned.reactions:
+                    message.add_reaction(reaction)
             return
 
 @client.event
