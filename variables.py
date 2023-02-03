@@ -36,7 +36,7 @@ alzgrt = [288660324842864642, 409099176639463427, 968568452921061386, 2237270883
 
 
 bannedWords = [
-       Banned(words=["كلمات الشيخ سطلان"],
+       Banned(words=["شيخ سطلان"],
            starts=None,
            delete=None,
            users=None,
@@ -155,7 +155,7 @@ bannedWords = [
            deleteAfter=100,
            timeout=None),
 
-       Banned(words=['ذيبان'],
+       Banned(words=['ذيب00ان'],
            starts=None,
            delete=False,
            users=None,

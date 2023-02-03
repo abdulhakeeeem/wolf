@@ -1,9 +1,10 @@
 import discord
 import time
-from variables import bannedWords
+from variables import bannedWords,alzgrt
 from telegram.ext import Updater
 from requests import get
 from datetime import timedelta
+
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -190,7 +191,7 @@ async def on_reaction_add(reaction, user):
     if user.id == 976490404520288276:
         return
 
-    if (reaction.message.author.id == 288660324842864642 or reaction.message.author.id == 288660324842864642 or reaction.message.author.id == 392331012727767060 or reaction.message.author.id == 542304547583033344):
+    if (reaction.message.author.id == 968568452921061386 or reaction.message.author.id == 288660324842864642 or reaction.message.author.id == 392331012727767060 or reaction.message.author.id == 542304547583033344):
         #if reaction.message.channel.id == 691164607749947436 or reaction.message.channel.id == 1016307203654815804:
             if reaction.emoji == "🗑️":
 
@@ -207,16 +208,19 @@ async def on_reaction_add(reaction, user):
             if reaction.emoji == "☕":
                 await reaction.message.author.timeout(timedelta(seconds=47))
                 await reaction.message.channel.send("https://cdn.discordapp.com/attachments/417396224644087809/1064686107918352444/monkey_banana_boat.mp4", delete_after=47)
-
-
+            if reaction.emoji == "🦵":
+                await reaction.message.author.kick()
+                await reaction.message.channel.send(f"<@{user.id}> ما يبيك في السيرفر")
 
                 #await reaction.message.author.timeout(timedelta(seconds=5))
 
-
+    if reaction.emoji == "🦵":
+        await reaction.message.author.kick()
+        await reaction.message.channel.send(f"<@{user.id}> ما يبيك في السيرفر")
 @client.event
 async def on_voice_state_update(member, before, after):
     user_roles = [role.id for role in member.roles]
-    zgrts_role = 1061702098569408734 # حط رقم الرول
+    zgrts_role = 1033163263535485018 # حط رقم الرول
     if before.channel is None and zgrts_role in user_roles:
         try:
             await sendDm(member.id, "لاحظ", delete=True)
@@ -224,7 +228,9 @@ async def on_voice_state_update(member, before, after):
 
         except:
             print('مبلك')
-            member.timeout(timedelta(seconds=10))
+            await member.timeout(timedelta(seconds=3))
+            channel = client.get_channel(691164607749947436)
+            await channel.send('فك البلوك ولا منتب داخل ',delete_after=20)
 
 
 @client.event
