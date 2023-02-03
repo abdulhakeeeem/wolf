@@ -186,37 +186,37 @@ async def on_message(message):
                     message.add_reaction(reaction)
             return
 
-@client.event
-async def on_reaction_add(reaction, user):
-    if user.id == 976490404520288276:
-        return
-
-    if (reaction.message.author.id == 968568452921061386 or reaction.message.author.id == 288660324842864642 or reaction.message.author.id == 392331012727767060 or reaction.message.author.id == 542304547583033344):
-        #if reaction.message.channel.id == 691164607749947436 or reaction.message.channel.id == 1016307203654815804:
-            if reaction.emoji == "🗑️":
-
-                await reaction.message.delete()
-                await reaction.message.channel.send(f"<@{user.id}> ما جاز له كلامك",delete_after=50)
-            if reaction.emoji == "👋":
-
-                await reaction.message.channel.send(f"<@{user.id}> يبيك تنطم",delete_after=50)
-                await reaction.message.author.timeout(timedelta(seconds=15))
-            if reaction.emoji == "👍":
-                await reaction.message.author.timeout(timedelta(seconds=1))
-                await reaction.message.channel.send("عفان جاز له كلامك",delete_after=20)
-                await sendDm(reaction.message.author.id,"يا حظك https://cdn.discordapp.com/attachments/799603925085847573/1062815358316183654/shakira.mov ")
-            if reaction.emoji == "☕":
-                await reaction.message.author.timeout(timedelta(seconds=47))
-                await reaction.message.channel.send("https://cdn.discordapp.com/attachments/417396224644087809/1064686107918352444/monkey_banana_boat.mp4", delete_after=47)
-            if reaction.emoji == "🦵":
-                await reaction.message.author.kick()
-                await reaction.message.channel.send(f"<@{user.id}> ما يبيك في السيرفر")
-
-                #await reaction.message.author.timeout(timedelta(seconds=5))
-
-    if reaction.emoji == "🦵":
-        await reaction.message.author.kick()
-        await reaction.message.channel.send(f"<@{user.id}> ما يبيك في السيرفر")
+# @client.event
+# async def on_reaction_add(reaction, user):
+#     if user.id == 976490404520288276:
+#         return
+#
+#     if (reaction.message.author.id == 968568452921061386 or reaction.message.author.id == 288660324842864642 or reaction.message.author.id == 392331012727767060 or reaction.message.author.id == 542304547583033344):
+#         #if reaction.message.channel.id == 691164607749947436 or reaction.message.channel.id == 1016307203654815804:
+#             if reaction.emoji == "🗑️":
+#
+#                 await reaction.message.delete()
+#                 await reaction.message.channel.send(f"<@{user.id}> ما جاز له كلامك",delete_after=50)
+#             if reaction.emoji == "👋":
+#
+#                 await reaction.message.channel.send(f"<@{user.id}> يبيك تنطم",delete_after=50)
+#                 await reaction.message.author.timeout(timedelta(seconds=15))
+#             if reaction.emoji == "👍":
+#                 await reaction.message.author.timeout(timedelta(seconds=1))
+#                 await reaction.message.channel.send("عفان جاز له كلامك",delete_after=20)
+#                 await sendDm(reaction.message.author.id,"يا حظك https://cdn.discordapp.com/attachments/799603925085847573/1062815358316183654/shakira.mov ")
+#             if reaction.emoji == "☕":
+#                 await reaction.message.author.timeout(timedelta(seconds=47))
+#                 await reaction.message.channel.send("https://cdn.discordapp.com/attachments/417396224644087809/1064686107918352444/monkey_banana_boat.mp4", delete_after=47)
+#             if reaction.emoji == "🦵":
+#                 await reaction.message.author.kick()
+#                 await reaction.message.channel.send(f"<@{user.id}> ما يبيك في السيرفر")
+#
+#                 #await reaction.message.author.timeout(timedelta(seconds=5))
+#
+#     if reaction.emoji == "🦵":
+#         await reaction.message.author.kick()
+#         await reaction.message.channel.send(f"<@{user.id}> ما يبيك في السيرفر")
 @client.event
 async def on_voice_state_update(member, before, after):
     user_roles = [role.id for role in member.roles]
@@ -240,9 +240,38 @@ async def on_ready():
     #await channel.send('https://cdn.discordapp.com/attachments/976019318154342440/1062680976762880071/RPReplay_Final1656509018.mov ',delete_after=10)
 
 
+@client.event
+async def on_raw_reaction_add(payload):
 
+    message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
+    reactor = payload.user_id
+    emoji = payload.emoji.name
 
+    if (message.author.id == 968568452921061386 or message.author.id == 288660324842864642 or message.author.id == 392331012727767060 or message.author.id == 542304547583033344):
+        #if reaction.message.channel.id == 691164607749947436 or reaction.message.channel.id == 1016307203654815804:
+            if emoji == "🗑️":
+                await message.delete()
+                await message.channel.send(f"<@{reactor}> ما جاز له كلامك",delete_after=50)
+            if emoji == "👋":
 
+                await message.channel.send(f"<@{reactor}> يبيك تنطم",delete_after=50)
+                await message.author.timeout(timedelta(seconds=15))
+            if emoji == "👍":
+                await message.author.timeout(timedelta(seconds=1))
+                await message.channel.send("عفان جاز له كلامك",delete_after=20)
+                await sendDm(message.author.id,"يا حظك https://cdn.discordapp.com/attachments/799603925085847573/1062815358316183654/shakira.mov ")
+            if emoji == "☕":
+                await message.author.timeout(timedelta(seconds=47))
+                await message.channel.send("https://cdn.discordapp.com/attachments/417396224644087809/1064686107918352444/monkey_banana_boat.mp4", delete_after=47)
+            if emoji == "🦵":
+                await message.author.kick()
+                await message.channel.send(f"<@{reactor}> ما يبيك في السيرفر")
+
+                #await reaction.message.author.timeout(timedelta(seconds=5))
+
+    if emoji == "🦵":
+        await message.author.kick()
+        await message.channel.send(f"<@{reactor}> ما يبيك في السيرفر")
 
 
 
