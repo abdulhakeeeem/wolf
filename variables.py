@@ -32,7 +32,7 @@ Banned(words=["بطة"],
 
 
 
-alzgrt = [288660324842864642, 409099176639463427, 968568452921061386, 2237270883796254822, 542304547583033344]
+alzgrt = [288660324842864642, 409099176639463427, 968568452921061386, 2237270883796254822, 542304547583033344,1071729305274552433]
 
 
 bannedWords = [
@@ -42,6 +42,16 @@ bannedWords = [
            users=None,
            channels=None,
            response="و الخيبه",
+           privMsg=None,
+           privMsgUsers=None,
+           deleteAfter=200,
+           timeout=30,),
+       Banned(words=["شحوم"],
+           starts=None,
+           delete=None,
+           users=None,
+           channels=None,
+           response="https://tenor.com/view/tkthao219-bubududu-peach-goma-gif-24982440",
            privMsg=None,
            privMsgUsers=None,
            deleteAfter=200,
@@ -90,7 +100,7 @@ bannedWords = [
            privMsg="محد يبيك يمصيري الفسيخ الطعميه الكشري"),
 
        Banned(words=['anime'],
-           starts=[''],
+           starts=None,
            delete=True,
            users=alzgrt,
            channels=None,
@@ -98,7 +108,7 @@ bannedWords = [
            privMsg="https://cdn.discordapp.com/attachments/745594435466690601/1067505989730971689/ABSOLUTE_TERRITORY_meme_online-video-cutter.com.mp4",
            privMsgUsers=None,
            deleteAfter=900,
-           timeout=None),
+           timeout=3),
 
        Banned(words=['<@&1061702098569408734>'],
            starts=None,

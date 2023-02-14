@@ -119,13 +119,13 @@ async def on_message(message):
 
             #await message.channel.send(embed=message.embeds[0])
     try:
-        if (message.author.id == 288660324842864642 or message.author.id == 288660324842864642 or message.author.id == 392331012727767060 or message.author.id == 542304547583033344 ) :#and (message.channel.id == 691164607749947436 or message.channel.id == 1016307203654815804):
+        if message.author.id in alzgrt: #(message.author.id == 288660324842864642 or message.author.id == 288660324842864642 or message.author.id == 392331012727767060 or message.author.id == 542304547583033344 ) :#and (message.channel.id == 691164607749947436 or message.channel.id == 1016307203654815804):
             await message.add_reaction("🗑️")
             await message.add_reaction("👋")
             await message.add_reaction("👍")
     except:
         await message.delete()
-        await message.author.timeout(timedelta(seconds=90))
+        await message.author.timeout(timedelta(seconds=90000))
         await message.channel.send(f"<@{message.author.id}> فك البلك يالحقير",delete_after=100)
 
 
@@ -246,8 +246,10 @@ async def on_raw_reaction_add(payload):
     message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
     reactor = payload.user_id
     emoji = payload.emoji.name
-
-    if (message.author.id == 968568452921061386 or message.author.id == 288660324842864642 or message.author.id == 392331012727767060 or message.author.id == 542304547583033344):
+    if reactor == 976490404520288276:
+        return
+    print(emoji)
+    if message.author.id in alzgrt: #(message.author.id == 968568452921061386 or message.author.id == 288660324842864642 or message.author.id == 392331012727767060 or message.author.id == 542304547583033344 or message.author.id == 1071729305274552433):
         #if reaction.message.channel.id == 691164607749947436 or reaction.message.channel.id == 1016307203654815804:
             if emoji == "🗑️":
                 await message.delete()
@@ -258,12 +260,19 @@ async def on_raw_reaction_add(payload):
                 await message.author.timeout(timedelta(seconds=15))
             if emoji == "👍":
                 await message.author.timeout(timedelta(seconds=1))
-                await message.channel.send("عفان جاز له كلامك",delete_after=20)
+                await message.channel.send(f"<@{reactor}> جاز له كلامك",delete_after=20)
                 await sendDm(message.author.id,"يا حظك https://cdn.discordapp.com/attachments/799603925085847573/1062815358316183654/shakira.mov ")
             if emoji == "☕":
                 await message.author.timeout(timedelta(seconds=47))
-                await message.channel.send("https://cdn.discordapp.com/attachments/417396224644087809/1064686107918352444/monkey_banana_boat.mp4", delete_after=47)
+                await message.channel.send("https://cdn.discordapp.com/attachments/417396224644087809/1074522951124258896/v12044gd0000cf2cnf3c77ufjm04q2ug.mov", delete_after=35)
+
             if emoji == "🦵":
+                await message.author.kick()
+                await message.channel.send(f"<@{reactor}> ما يبيك في السيرفر")
+            if emoji == "Anime":
+                await message.author.kick()
+                await message.channel.send(f"<@{reactor}> ما يبيك في السيرفر")
+            if emoji == "coffe_anime":
                 await message.author.kick()
                 await message.channel.send(f"<@{reactor}> ما يبيك في السيرفر")
 
@@ -272,6 +281,9 @@ async def on_raw_reaction_add(payload):
     if emoji == "🦵":
         await message.author.kick()
         await message.channel.send(f"<@{reactor}> ما يبيك في السيرفر")
+    if emoji == "🦇":
+        #await message.author.timeout(timedelta(seconds=47))
+        await message.channel.send("https://cdn.discordapp.com/attachments/627445959793704971/796994158223949844/VID-20180914-WA0008.mp4",delete_after=20)
 
 
 
