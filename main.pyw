@@ -246,6 +246,9 @@ async def on_raw_reaction_add(payload):
     message = await client.get_channel(payload.channel_id).fetch_message(payload.message_id)
     reactor = payload.user_id
     emoji = payload.emoji.name
+    guild = await client.fetch_guild(payload.guild_id)
+    user_reactor = await guild.fetch_member(reactor)
+
     if reactor == 976490404520288276:
         return
     print(emoji)
