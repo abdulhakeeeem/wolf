@@ -279,8 +279,12 @@ async def on_raw_reaction_add(payload):
                 #await reaction.message.author.timeout(timedelta(seconds=5))
 
     if emoji == "🦵":
-        await message.author.kick()
-        await message.channel.send(f"<@{reactor}> ما يبيك في السيرفر")
+        try:
+            await message.author.kick()
+            await message.channel.send(f"<@{reactor}> ما يبيك في السيرفر")
+        except:
+            await reactor.kick()
+            await message.channel.send(f"<@{reactor}> https://cdn.discordapp.com/attachments/758296682659184640/1069692160858927194/nope.mov ")
     if emoji == "🦇":
         #await message.author.timeout(timedelta(seconds=47))
         await message.channel.send("https://cdn.discordapp.com/attachments/627445959793704971/796994158223949844/VID-20180914-WA0008.mp4",delete_after=20)
