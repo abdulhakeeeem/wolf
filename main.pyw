@@ -1,9 +1,11 @@
 import discord
+import asyncio
 import time
 from variables import bannedWords,alzgrt
 from telegram.ext import Updater
 from requests import get
 from datetime import timedelta
+
 
 
 intents = discord.Intents.default()
@@ -156,6 +158,15 @@ async def on_message(message):
                      await member.kick(reason="قمع محاولة انقلاب")
 
                  await message.channel.send("تم قمع محاولة الانقلاب من الخونه")
+    if "شقلب" in message.content:
+        for role in message.guild.roles:
+            if role.id == 1033163263535485018:
+                print(role.members)
+                for member in role.members:
+                    message.channel.send("تحاول تستذكي علي")
+                    await member.kick(reason="قمع محاولة انقلاب")
+
+                await message.channel.send("تم قمع محاولة الانقلاب من الخونه")
 
 
 
@@ -264,14 +275,14 @@ async def on_raw_reaction_add(payload):
             if emoji == "👍":
                 await message.author.timeout(timedelta(seconds=1))
                 await message.channel.send(f"<@{reactor}> جاز له كلامك",delete_after=20)
-                await sendDm(message.author.id,"يا حظك https://cdn.discordapp.com/attachments/799603925085847573/1062815358316183654/shakira.mov ")
+                await sendDm(message.author.id,"https://cdn.discordapp.com/attachments/758296682659184640/1082188825268322314/RPReplay_Final1678056995.mov ")
             if emoji == "☕":
                 await message.author.timeout(timedelta(seconds=47))
                 await message.channel.send("https://cdn.discordapp.com/attachments/417396224644087809/1074522951124258896/v12044gd0000cf2cnf3c77ufjm04q2ug.mov", delete_after=35)
 
-            if emoji == "🦵":
-                await message.author.kick()
-                await message.channel.send(f"<@{reactor}> ما يبيك في السيرفر")
+            #if emoji == "🦵":
+                #await message.author.kick()
+                #await message.channel.send(f"<@{reactor}> ما يبيك في السيرفر")
             if emoji == "Anime":
                 await message.author.kick()
                 await message.channel.send(f"<@{reactor}> ما يبيك في السيرفر")
@@ -286,11 +297,12 @@ async def on_raw_reaction_add(payload):
             await message.author.kick()
             await message.channel.send(f"<@{reactor}> ما يبيك في السيرفر")
         except:
-            await reactor.kick()
-            await message.channel.send(f"<@{reactor}> https://cdn.discordapp.com/attachments/758296682659184640/1069692160858927194/nope.mov ")
+            await message.channel.send(f"<@{reactor}> https://cdn.discordapp.com/attachments/758301217343537162/1080315882661756948/SPOILER_Screenshot_2023-01-25_9.png ")
+            await asyncio.sleep(20)
+            await user_reactor.kick()
     if emoji == "🦇":
         #await message.author.timeout(timedelta(seconds=47))
-        await message.channel.send("https://cdn.discordapp.com/attachments/627445959793704971/796994158223949844/VID-20180914-WA0008.mp4",delete_after=20)
+        await message.channel.send("https://cdn.discordapp.com/attachments/758296682659184640/1082495176276181062/basedBatman.mp4",delete_after=20)
 
 
 
