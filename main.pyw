@@ -244,11 +244,21 @@ async def on_voice_state_update(member, before, after):
             await channel.send('فك البلوك ولا منتب داخل ',delete_after=20)
 
 
+
 @client.event
 async def on_ready():
+    await client.change_presence(status=discord.Status.offline)
+
     print('We have logged in as {0.user}'.format(client))
     channel = client.get_channel(691164607749947436)
     #await channel.send('https://cdn.discordapp.com/attachments/976019318154342440/1062680976762880071/RPReplay_Final1656509018.mov ',delete_after=10)
+
+@client.event
+async def on_member_remove(member):
+    await sendDm(member.id ,"https://discord.gg/5z93XyFjBy")
+
+
+
 
 
 @client.event
