@@ -316,6 +316,16 @@ bannedWords = [
               privMsgUsers=False,
               deleteAfter=False,
               timeout=False),
+       Banned(words=["سيسي"],
+              starts=None,
+              delete=True,
+              users=None,
+              channels=None,
+              response="https://media.discordapp.net/attachments/683669746616500382/780895189001961482/IMG_20201124_223206.jpg?width=374&height=617",
+              privMsg=False,
+              privMsgUsers=False,
+              deleteAfter=False,
+              timeout=False),
 
 
        # Banned(words=[""],
