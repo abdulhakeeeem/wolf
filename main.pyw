@@ -5,7 +5,7 @@ from variables import bannedWords,alzgrt
 from telegram.ext import Updater
 from requests import get
 from datetime import timedelta
-
+import json
 
 
 intents = discord.Intents.default()
@@ -50,6 +50,61 @@ async def send_video(message, chatId):
         print(f"Video sent")
 
     return True
+
+async def check_all_kick_members():
+    with open("users.json") as file:
+        kicked_members = json.load(file)
+
+    guild = client.get_guild(691164607749947432)
+    edited = False
+    for kicked_member in kicked_members:
+        member = guild.get_member(kicked_member["user"])
+        if member:
+            await add_roles(member, kicked_member)
+            edited = True
+            kicked_members.remove(kicked_member)
+
+    if edited:
+        with open("users.json", "w") as file:
+            json.dump(kicked_members, file)
+
+async def save_data(member):
+    # await sendDm(member.id, "https://discord.gg/5z93XyFjBy")
+    roles = [role.id for role in member.roles]
+    member_id = member.id
+    name = member.nick
+    data = {
+        "user":member_id,
+        "name":name,
+        "roles":roles,
+    }
+    try:
+        with open("users.json", "r") as file:
+            kicked_members = json.load(file)
+    except Exception as e:
+        kicked_members = []
+    kicked_members.append(data)
+
+    with open("users.json", "w") as file:
+        json.dump(kicked_members, file)
+
+
+async def add_roles(member, member_info):
+
+    if member_info["name"]:
+        await member.edit(nick=member_info["name"])
+        print(member_info["name"])
+
+    guild_roles = await member.guild.fetch_roles()
+
+    for role in member_info["roles"]:
+        for guild_role in guild_roles:
+            if role == guild_role.id:
+                try:
+                    await member.add_roles(guild_role)
+                except:
+                    pass
+
 
 
 def isMeme(message):
@@ -101,7 +156,6 @@ async def steal(message):
 
 @client.event
 async def on_message(message):
-
 
     if await steal(message):
         return
@@ -248,16 +302,27 @@ async def on_voice_state_update(member, before, after):
 @client.event
 async def on_ready():
     await client.change_presence(status=discord.Status.offline)
-
     print('We have logged in as {0.user}'.format(client))
     channel = client.get_channel(691164607749947436)
     #await channel.send('https://cdn.discordapp.com/attachments/976019318154342440/1062680976762880071/RPReplay_Final1656509018.mov ',delete_after=10)
+    await check_all_kick_members()
 
 @client.event
 async def on_member_remove(member):
+    await save_data(member)
     await sendDm(member.id ,"https://discord.gg/5z93XyFjBy")
 
+@client.event
+async def on_member_join(member):
+    with open("users.json") as file:
+        kicked_user = json.load(file)
 
+    for index, user in enumerate(kicked_user):
+        if user["user"] == member.id:
+            await add_roles(member, user)
+            kicked_user.pop(index)
+            with open("users.json", "w") as file:
+                json.dump(kicked_user, file)
 
 
 
