@@ -5,15 +5,21 @@ from variables import bannedWords,alzgrt
 from telegram.ext import Updater
 from requests import get
 from datetime import timedelta
+from discord.ext import tasks
 import json
+import os
+import sqlite3
+from dotenv import load_dotenv
+from discord.ext import commands
 
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-client = discord.Client(intents=intents)
+client = commands.Bot(intents=intents,command_prefix='$')
 
 telegram_bot = Updater("5345322467:AAHxdqp9vzOUZU4CQCHFTfdnrgb0ucCb_Cs")
+
 
 
 async def sendDm(id, message, delete=False):
@@ -51,42 +57,6 @@ async def send_video(message, chatId):
 
     return True
 
-async def check_all_kick_members():
-    with open("users.json") as file:
-        kicked_members = json.load(file)
-
-    guild = client.get_guild(691164607749947432)
-    edited = False
-    for kicked_member in kicked_members:
-        member = guild.get_member(kicked_member["user"])
-        if member:
-            await add_roles(member, kicked_member)
-            edited = True
-            kicked_members.remove(kicked_member)
-
-    if edited:
-        with open("users.json", "w") as file:
-            json.dump(kicked_members, file)
-
-async def save_data(member):
-    # await sendDm(member.id, "https://discord.gg/5z93XyFjBy")
-    roles = [role.id for role in member.roles]
-    member_id = member.id
-    name = member.nick
-    data = {
-        "user":member_id,
-        "name":name,
-        "roles":roles,
-    }
-    try:
-        with open("users.json", "r") as file:
-            kicked_members = json.load(file)
-    except Exception as e:
-        kicked_members = []
-    kicked_members.append(data)
-
-    with open("users.json", "w") as file:
-        json.dump(kicked_members, file)
 
 
 async def add_roles(member, member_info):
@@ -156,7 +126,7 @@ async def steal(message):
 
 @client.event
 async def on_message(message):
-
+    await client.process_commands(message)
     if await steal(message):
         return
     if message.author.id == 1001189121332617327:
@@ -170,7 +140,7 @@ async def on_message(message):
 
             await client.fetch_channel(691164607749947436)
             #await message.channel.send(message.content)
-            await client.get_channel(691164607749947436).send(embed=message.embeds[0])
+            await client.get_channel(691164607749947436).send(embed=message.embeds[0],delete_after=3000)
             await message.channel.send("لا يطوفكم بث دحيم")
 
             #await message.channel.send(embed=message.embeds[0])
@@ -212,7 +182,7 @@ async def on_message(message):
                      await member.kick(reason="قمع محاولة انقلاب")
 
                  await message.channel.send("تم قمع محاولة الانقلاب من الخونه")
-    if "شقلب" in message.content:
+    if "شقلبه" in message.content:
         for role in message.guild.roles:
             if role.id == 1033163263535485018:
                 print(role.members)
@@ -222,8 +192,7 @@ async def on_message(message):
 
                 await message.channel.send("تم قمع محاولة الانقلاب من الخونه")
 
-
-
+    
     for banned in bannedWords:
         if banned.isBanned(message):
 
@@ -251,37 +220,6 @@ async def on_message(message):
                     message.add_reaction(reaction)
             return
 
-# @client.event
-# async def on_reaction_add(reaction, user):
-#     if user.id == 976490404520288276:
-#         return
-#
-#     if (reaction.message.author.id == 968568452921061386 or reaction.message.author.id == 288660324842864642 or reaction.message.author.id == 392331012727767060 or reaction.message.author.id == 542304547583033344):
-#         #if reaction.message.channel.id == 691164607749947436 or reaction.message.channel.id == 1016307203654815804:
-#             if reaction.emoji == "🗑️":
-#
-#                 await reaction.message.delete()
-#                 await reaction.message.channel.send(f"<@{user.id}> ما جاز له كلامك",delete_after=50)
-#             if reaction.emoji == "👋":
-#
-#                 await reaction.message.channel.send(f"<@{user.id}> يبيك تنطم",delete_after=50)
-#                 await reaction.message.author.timeout(timedelta(seconds=15))
-#             if reaction.emoji == "👍":
-#                 await reaction.message.author.timeout(timedelta(seconds=1))
-#                 await reaction.message.channel.send("عفان جاز له كلامك",delete_after=20)
-#                 await sendDm(reaction.message.author.id,"يا حظك https://cdn.discordapp.com/attachments/799603925085847573/1062815358316183654/shakira.mov ")
-#             if reaction.emoji == "☕":
-#                 await reaction.message.author.timeout(timedelta(seconds=47))
-#                 await reaction.message.channel.send("https://cdn.discordapp.com/attachments/417396224644087809/1064686107918352444/monkey_banana_boat.mp4", delete_after=47)
-#             if reaction.emoji == "🦵":
-#                 await reaction.message.author.kick()
-#                 await reaction.message.channel.send(f"<@{user.id}> ما يبيك في السيرفر")
-#
-#                 #await reaction.message.author.timeout(timedelta(seconds=5))
-#
-#     if reaction.emoji == "🦵":
-#         await reaction.message.author.kick()
-#         await reaction.message.channel.send(f"<@{user.id}> ما يبيك في السيرفر")
 @client.event
 async def on_voice_state_update(member, before, after):
     user_roles = [role.id for role in member.roles]
@@ -299,19 +237,110 @@ async def on_voice_state_update(member, before, after):
 
 
 
+
+
+
+async def check_all_kick_members():
+    with open("users.json") as file:
+        kicked_members = json.load(file)
+
+    guild = client.get_guild(691164607749947432)
+    edited = False
+    for kicked_member in kicked_members:
+        member = guild.get_member(kicked_member["user"])
+        if member:
+            await add_roles(member, kicked_member)
+            edited = True
+            kicked_members.remove(kicked_member)
+
+    if edited:
+        with open("users.json", "w") as file:
+            json.dump(kicked_members, file)
+
+async def save_data(member):
+    # await sendDm(member.id, "https://discord.gg/5z93XyFjBy")
+
+    roles = [role.id for role in member.roles]
+    member_id = member.id
+    name = member.nick
+    data = {
+        "user":member_id,
+        "name":name,
+        "roles":roles,
+    }
+    try:
+        with open("users.json", "r") as file:
+            kicked_members = json.load(file)
+    except Exception as e:
+        kicked_members = []
+    for member in kicked_members:
+        if member["user"] == member_id:
+            kicked_members.remove(member)
+            break
+    kicked_members.append(data)
+
+    with open("users.json", "w") as file:
+        json.dump(kicked_members, file)
+
+
+async def add_roles(member, member_info):
+
+    if member_info["name"]:
+        await member.edit(nick=member_info["name"])
+        print(member_info["name"])
+
+    guild_roles = await member.guild.fetch_roles()
+
+    for role in member_info["roles"]:
+        for guild_role in guild_roles:
+            if role == guild_role.id:
+                try:
+                    await member.add_roles(guild_role)
+                except:
+                    pass
+
+
+
+
+@client.command()
+
+async def foo(ctx):
+    guild = client.get_guild(691164607749947432)
+    members=guild.members
+
+    with open("users.json") as file:
+        kicked_user = json.load(file)
+
+    for member in members:
+        for index, user in enumerate(kicked_user):
+            if user["user"] == member.id:
+                await add_roles(member, user)
+                #kicked_user.pop(index)
+                # with open("users.json", "w") as file:
+                #     json.dump(kicked_user, file)
+
+@client.command()
+
+async def save_all(ctx):
+    guild = client.get_guild(691164607749947432)
+    members = guild.members
+    for member in members:
+        await save_data(member)
+
+
+
 @client.event
 async def on_ready():
-    await client.change_presence(status=discord.Status.offline)
+    # await client.change_presence(status=discord.Status.offline)
+
     print('We have logged in as {0.user}'.format(client))
     channel = client.get_channel(691164607749947436)
     #await channel.send('https://cdn.discordapp.com/attachments/976019318154342440/1062680976762880071/RPReplay_Final1656509018.mov ',delete_after=10)
     await check_all_kick_members()
-
 @client.event
 async def on_member_remove(member):
     await save_data(member)
     await sendDm(member.id ,"https://discord.gg/5z93XyFjBy")
-
 @client.event
 async def on_member_join(member):
     with open("users.json") as file:
@@ -320,7 +349,7 @@ async def on_member_join(member):
     for index, user in enumerate(kicked_user):
         if user["user"] == member.id:
             await add_roles(member, user)
-            kicked_user.pop(index)
+            #kicked_user.pop(index)
             with open("users.json", "w") as file:
                 json.dump(kicked_user, file)
 
@@ -350,7 +379,7 @@ async def on_raw_reaction_add(payload):
             if emoji == "👍":
                 await message.author.timeout(timedelta(seconds=1))
                 await message.channel.send(f"<@{reactor}> جاز له كلامك",delete_after=20)
-                await sendDm(message.author.id,"https://cdn.discordapp.com/attachments/758296682659184640/1082188825268322314/RPReplay_Final1678056995.mov ")
+                await sendDm(message.author.id,"https://cdn.discordapp.com/attachments/799603925085847573/1091466990075515030/ssstwitter.com_1680282403346.mp4 ")
             if emoji == "☕":
                 await message.author.timeout(timedelta(seconds=47))
                 await message.channel.send("https://cdn.discordapp.com/attachments/417396224644087809/1074522951124258896/v12044gd0000cf2cnf3c77ufjm04q2ug.mov", delete_after=35)
