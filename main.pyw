@@ -7,7 +7,6 @@ from requests import get
 from datetime import timedelta
 from discord.ext import tasks
 import json
-
 from discord.ext import commands
 
 
