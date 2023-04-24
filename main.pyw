@@ -7,9 +7,7 @@ from requests import get
 from datetime import timedelta
 from discord.ext import tasks
 import json
-import os
-import sqlite3
-from dotenv import load_dotenv
+
 from discord.ext import commands
 
 
@@ -291,19 +289,18 @@ async def add_roles(member, member_info):
         print(member_info["name"])
 
     guild_roles = await member.guild.fetch_roles()
-
+    users_role = []
     for role in member_info["roles"]:
-        users_roles = []
 
         for guild_role in guild_roles:
-            if role == guild_role.id:
-                users_roles.append(guild_role)
+            if role == guild_role.id and role != 691164607749947432:
+                users_role.append(guild_role)
 
-        if users_roles:
-            try:
-                await member.add_roles(users_roles)
-            except Exception as e:
-                print(e)
+    if users_role:
+        try:
+            await member.add_roles(*users_role)
+        except Exception as e:
+            print(e)
 
 
 
