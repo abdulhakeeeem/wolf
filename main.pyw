@@ -253,7 +253,8 @@ async def check_all_kick_members():
             edited = True
             kicked_members.remove(kicked_member)
 
-    if edited:
+    # طفيناها
+    if edited and False:
         with open("users.json", "w") as file:
             json.dump(kicked_members, file)
 
@@ -292,12 +293,17 @@ async def add_roles(member, member_info):
     guild_roles = await member.guild.fetch_roles()
 
     for role in member_info["roles"]:
+        users_roles = []
+
         for guild_role in guild_roles:
             if role == guild_role.id:
-                try:
-                    await member.add_roles(guild_role)
-                except:
-                    pass
+                users_roles.append(guild_role)
+
+        if users_roles:
+            try:
+                await member.add_roles(users_roles)
+            except Exception as e:
+                print(e)
 
 
 
@@ -350,8 +356,8 @@ async def on_member_join(member):
         if user["user"] == member.id:
             await add_roles(member, user)
             #kicked_user.pop(index)
-            with open("users.json", "w") as file:
-                json.dump(kicked_user, file)
+            # with open("users.json", "w") as file:
+            #     json.dump(kicked_user, file)
 
 
 
