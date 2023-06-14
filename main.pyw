@@ -1,5 +1,6 @@
 import discord
 import asyncio
+import os, datetime
 import time
 from variables import bannedWords,alzgrt
 from telegram.ext import Updater
@@ -8,6 +9,8 @@ from datetime import timedelta
 from discord.ext import tasks
 import json
 from discord.ext import commands
+import openai as gpt
+from dotenv import load_dotenv
 
 
 intents = discord.Intents.default()
@@ -115,10 +118,15 @@ async def steal(message):
          await message.channel.send(message.content)
          await message.delete()
          return True
-
+######################################
+         if message.author.id == 672822334641537041:
+             if message.channel.id == 853454311521386548: # check if the message is from the source channel
+                target_channel = client.get_channel(1114150009106079756) # get the target channel object
+                await target_channel.send(message.content, tts=message.tts, files=[await attch.to_file() for attch in message.attachments], embed=message.embeds[0] if message.embeds else None) # send the message content, tts, files and embed to the target channel
+                return True
      return False
 
-
+#######################################
 
 
 @client.event
@@ -216,6 +224,51 @@ async def on_message(message):
                 for reaction in banned.reactions:
                     message.add_reaction(reaction)
             return
+
+
+
+
+
+
+
+
+
+
+    if message.author.id == 542304547583033344 :
+        message.channel.send("ما اسمع كلام مصري  https://tenor.com/view/%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84-%D9%82%D9%88%D9%8A-%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84%D9%85%D8%B9%D8%B6%D9%84-%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84%D9%82%D9%88%D9%8A-%D8%A7%D8%AD%D9%85%D8%AF%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84-gif-25117516",delete_after=200)
+        return
+
+    if message.author.bot:
+        return
+
+    if client.user in message.mentions:
+        await message.channel.typing()  # Appear as typing while processing.
+
+        # Save user message in the log
+        chat_log = []
+        chat_log.append({"role": "user", "content": message.content})
+
+        # Get response
+        response = gpt.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=chat_log
+        )
+        gptResponse = response['choices'][0]['message']['content']
+
+        # Save Response message in the log
+        chat_log.append({"role": "assistant", "content": gptResponse.strip("\n").strip()})
+
+        # Send Response to discord room.
+        await message.channel.send("``` {} ```".format(gptResponse))
+
+        # Append to log file
+        with open("log.txt", "a", encoding='utf-8') as file:
+            now = datetime.datetime.now()
+            file.write(now.strftime("%Y-%m-%d %H:%M:%S"))
+            file.write("\nUser:\n {}.\n".format(message.content))
+            file.write("GPT:\n {}.\n\n".format(gptResponse))
+
+
 
 @client.event
 async def on_voice_state_update(member, before, after):
@@ -324,6 +377,7 @@ async def foo(ctx):
 @client.command()
 
 async def save_all(ctx):
+    print("DODN")
     guild = client.get_guild(691164607749947432)
     members = guild.members
     for member in members:
@@ -331,14 +385,31 @@ async def save_all(ctx):
 
 
 
+
 @client.event
 async def on_ready():
+
     # await client.change_presence(status=discord.Status.offline)
 
     print('We have logged in as {0.user}'.format(client))
     channel = client.get_channel(691164607749947436)
     #await channel.send('https://cdn.discordapp.com/attachments/976019318154342440/1062680976762880071/RPReplay_Final1656509018.mov ',delete_after=10)
     await check_all_kick_members()
+
+    source_channel = client.get_channel(853454311521386548)  # get the source channel object
+    target_channel = client.get_channel(1114166935307964438)  # get the target channel object
+    user_id = 956672052251721748  # get the user ID you want to filter
+    file = open("message_ids.txt", "a+")  # open a file in append and read mode
+    file.seek(0)  # move the cursor to the beginning of the file
+    message_ids = file.read().splitlines()  # read the file and split it by lines
+    async for message in source_channel.history(limit=10):  # iterate over up to 100 messages from the source channel
+        if message.author.id == user_id and str(
+                message.id) not in message_ids:  # check if the message author's ID matches the user ID and the message ID is not in the file
+            await target_channel.send(message.content, tts=message.tts,
+                                      files=[await attch.to_file() for attch in message.attachments],embed=message.embeds[0] if message.embeds else None)  # send the message content, tts, files and embed to the target channel
+            file.write(str(message.id) + "\n")  # write the message ID to the file
+    file.close()  # close the file
+
 @client.event
 async def on_member_remove(member):
     await save_data(member)
@@ -381,7 +452,7 @@ async def on_raw_reaction_add(payload):
             if emoji == "👍":
                 await message.author.timeout(timedelta(seconds=1))
                 await message.channel.send(f"<@{reactor}> جاز له كلامك",delete_after=20)
-                await sendDm(message.author.id,"https://cdn.discordapp.com/attachments/799603925085847573/1091466990075515030/ssstwitter.com_1680282403346.mp4 ")
+                await sendDm(message.author.id,"https://cdn.discordapp.com/attachments/758296682659184640/1099810895409979472/Thumb.mp4 ")
             if emoji == "☕":
                 await message.author.timeout(timedelta(seconds=47))
                 await message.channel.send("https://cdn.discordapp.com/attachments/417396224644087809/1074522951124258896/v12044gd0000cf2cnf3c77ufjm04q2ug.mov", delete_after=35)
@@ -409,6 +480,19 @@ async def on_raw_reaction_add(payload):
     if emoji == "🦇":
         #await message.author.timeout(timedelta(seconds=47))
         await message.channel.send("https://cdn.discordapp.com/attachments/758296682659184640/1082495176276181062/basedBatman.mp4",delete_after=20)
+#================================================================================================
+
+# Load Tokens
+load_dotenv(".env")
+DISCORD_TOKEN = os.getenv("OTc2NDkwNDA0NTIwMjg4Mjc2.Gqipb5.wNkNe_eZVNIkMCyircic0LdEbDqRICwu9IgNe4")
+gpt.api_key = "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"
+
+
+
+
+
+
+
 
 
 
