@@ -146,7 +146,12 @@ async def on_message(message):
             await client.fetch_channel(691164607749947436)
             #await message.channel.send(message.content)
             await client.get_channel(691164607749947436).send(embed=message.embeds[0],delete_after=3000)
-            await message.channel.send("لا يطوفكم بث دحيم")
+            await client.get_channel(691164607749947436).send("لا يطوفكم بث دحيم",delete_after=3000)
+
+            await client.fetch_channel(535473799005470740)
+            # await message.channel.send(message.content)
+            await client.get_channel(535473799005470740).send(embed=message.embeds[0], delete_after=3000)
+            await client.get_channel(535473799005470740).send("لا يطوفكم بث الوالي",delete_after=3000)
 
             #await message.channel.send(embed=message.embeds[0])
     try:
@@ -470,8 +475,9 @@ async def on_raw_reaction_add(payload):
 
     if emoji == "🦵":
         try:
+            await message.channel.send(f"<@{reactor}> يقول لك https://cdn.discordapp.com/attachments/758296682659184640/1126808434940063754/super_dpper_fucked.mov")
+            await asyncio.sleep(68)
             await message.author.kick()
-            await message.channel.send(f"<@{reactor}> ما يبيك في السيرفر")
         except:
             await message.channel.send(f"<@{reactor}> https://cdn.discordapp.com/attachments/758301217343537162/1080315882661756948/SPOILER_Screenshot_2023-01-25_9.png ")
             await asyncio.sleep(20)
