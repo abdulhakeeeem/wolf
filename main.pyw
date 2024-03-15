@@ -11,7 +11,7 @@ import json
 from discord.ext import commands
 import openai as gpt
 from dotenv import load_dotenv
-
+import random
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -153,6 +153,11 @@ async def on_message(message):
             await client.get_channel(535473799005470740).send(embed=message.embeds[0], delete_after=3000)
             await client.get_channel(535473799005470740).send("لا يطوفكم بث الوالي",delete_after=3000)
 
+            await client.fetch_channel(691164607749947436)
+            # await message.channel.send(message.content)
+            await client.get_channel(737789345653719124).send(embed=message.embeds[0], delete_after=3000)
+            await client.get_channel(737789345653719124).send("لا يطوفكم بث ملك الليل", delete_after=3000)
+
             #await message.channel.send(embed=message.embeds[0])
     try:
         if message.author.id in alzgrt: #(message.author.id == 288660324842864642 or message.author.id == 288660324842864642 or message.author.id == 392331012727767060 or message.author.id == 542304547583033344 ) :#and (message.channel.id == 691164607749947436 or message.channel.id == 1016307203654815804):
@@ -239,10 +244,6 @@ async def on_message(message):
 
 
 
-    if message.author.id == 542304547583033344 :
-        message.channel.send("ما اسمع كلام مصري  https://tenor.com/view/%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84-%D9%82%D9%88%D9%8A-%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84%D9%85%D8%B9%D8%B6%D9%84-%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84%D9%82%D9%88%D9%8A-%D8%A7%D8%AD%D9%85%D8%AF%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84-gif-25117516",delete_after=200)
-        return
-
     if message.author.bot:
         return
 
@@ -299,6 +300,7 @@ async def check_all_kick_members():
     with open("users.json") as file:
         kicked_members = json.load(file)
 
+
     guild = client.get_guild(691164607749947432)
     edited = False
     for kicked_member in kicked_members:
@@ -312,6 +314,7 @@ async def check_all_kick_members():
     if edited and False:
         with open("users.json", "w") as file:
             json.dump(kicked_members, file)
+
 
 async def save_data(member):
     # await sendDm(member.id, "https://discord.gg/5z93XyFjBy")
@@ -387,6 +390,8 @@ async def save_all(ctx):
     members = guild.members
     for member in members:
         await save_data(member)
+        await asyncio.sleep(1)
+        print("DODNnn")
 
 
 
@@ -407,11 +412,13 @@ async def on_ready():
     file = open("message_ids.txt", "a+")  # open a file in append and read mode
     file.seek(0)  # move the cursor to the beginning of the file
     message_ids = file.read().splitlines()  # read the file and split it by lines
-    async for message in source_channel.history(limit=20):  # iterate over up to 100 messages from the source channel
-        if message.author.id == user_id and str(
-                message.id) not in message_ids:  # check if the message author's ID matches the user ID and the message ID is not in the file
-            await target_channel.send(message.content, tts=message.tts,files=[await attch.to_file() for attch in message.attachments],embed=message.embeds[0] if message.embeds else None)  # send the message content, tts, files and embed to the target channel
-            file.write(str(message.id) + "\n")  # write the message ID to the file
+    if source_channel is not None:
+        async for message in source_channel.history(limit=20):  # iterate over up to 100 messages from the source channel
+            if message.author.id == user_id and str(message.id) not in message_ids:  # check if the message author's ID matches the user ID and the message ID is not in the file
+                await target_channel.send(message.content, tts=message.tts,files=[await attch.to_file() for attch in message.attachments],embed=message.embeds[0] if message.embeds else None)  # send the message content, tts, files and embed to the target channel
+                file.write(str(message.id) + "\n")  # write the message ID to the file
+    else:
+        print(f'Channel with id {"سيرفر عمر"} not found')
     file.close()  # close the file
 
 @client.event
@@ -444,6 +451,7 @@ async def on_raw_reaction_add(payload):
     if reactor == 976490404520288276:
         return
     print(emoji)
+
     if message.author.id in alzgrt: #(message.author.id == 968568452921061386 or message.author.id == 288660324842864642 or message.author.id == 392331012727767060 or message.author.id == 542304547583033344 or message.author.id == 1071729305274552433):
         #if reaction.message.channel.id == 691164607749947436 or reaction.message.channel.id == 1016307203654815804:
             if emoji == "🗑️":
@@ -456,7 +464,7 @@ async def on_raw_reaction_add(payload):
             if emoji == "👍":
                 await message.author.timeout(timedelta(seconds=1))
                 await message.channel.send(f"<@{reactor}> جاز له كلامك",delete_after=20)
-                await sendDm(message.author.id,"https://cdn.discordapp.com/attachments/758296682659184640/1099810895409979472/Thumb.mp4 ")
+                await sendDm(message.author.id,"https://cdn.discordapp.com/attachments/799620288684883979/954199701450817586/redditsave.com_ever_see_such_skill-egl9t3fyw0o81-360.mp4?ex=65b31438&is=65a09f38&hm=552d508b2dafd9d284dfdbfba74435df2f54bbcefe4715eed7ec9cc4dc179398&")
             if emoji == "☕":
                 await message.author.timeout(timedelta(seconds=47))
                 await message.channel.send("https://cdn.discordapp.com/attachments/417396224644087809/1074522951124258896/v12044gd0000cf2cnf3c77ufjm04q2ug.mov", delete_after=35)
@@ -474,17 +482,45 @@ async def on_raw_reaction_add(payload):
                 #await reaction.message.author.timeout(timedelta(seconds=5))
 
     if emoji == "🦵":
-        try:
-            await message.channel.send(f"<@{reactor}> يقول لك https://cdn.discordapp.com/attachments/758296682659184640/1126808434940063754/super_dpper_fucked.mov")
-            await asyncio.sleep(68)
-            await message.author.kick()
-        except:
-            await message.channel.send(f"<@{reactor}> https://cdn.discordapp.com/attachments/758301217343537162/1080315882661756948/SPOILER_Screenshot_2023-01-25_9.png ")
-            await asyncio.sleep(20)
-            await user_reactor.kick()
+        if user_reactor.id == 542304547583033344:
+            await message.channel.send("ما اسمع كلام مصري  https://tenor.com/view/%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84-%D9%82%D9%88%D9%8A-%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84%D9%85%D8%B9%D8%B6%D9%84-%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84%D9%82%D9%88%D9%8A-%D8%A7%D8%AD%D9%85%D8%AF%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84-gif-25117516",delete_after=200)
+            return
+        else:
+            if random.random() >=0.50 :
+
+                try:
+                    # if reactor.id == 542304547583033344:
+                    #     await message.channel.send("ما اسمع كلام مصري  https://tenor.com/view/%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84-%D9%82%D9%88%D9%8A-%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84%D9%85%D8%B9%D8%B6%D9%84-%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84%D9%82%D9%88%D9%8A-%D8%A7%D8%AD%D9%85%D8%AF%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84-gif-25117516",delete_after=200)
+                    #     return
+                    # else:
+                    await message.channel.send(f"<@{reactor}>  يقول ل <@{message.author.id}>  https://cdn.discordapp.com/attachments/758296682659184640/1126808434940063754/super_dpper_fucked.mov")
+                    await asyncio.sleep(40)
+                    await sendDm(message.author.id,"https://discord.gg/5z93XyFjBy")
+                    await message.author.kick()
+                except:
+                    await message.channel.send(f"<@{reactor}> https://cdn.discordapp.com/attachments/758301217343537162/1080315882661756948/SPOILER_Screenshot_2023-01-25_9.png ")
+                    await asyncio.sleep(20)
+                    await sendDm(user_reactor.id,"https://discord.gg/5z93XyFjBy")
+                    await user_reactor.kick()
+            else:
+                try:
+                    await message.channel.send(f"<@{reactor}>  https://cdn.discordapp.com/attachments/847736808104263680/1082027777475219618/ja5f__1.mp4")
+                    await asyncio.sleep(40)
+                    await sendDm(user_reactor.id, "https://discord.gg/5z93XyFjBy")
+                    await user_reactor.kick()
+                except:
+                    await message.channel.send(f"<@{reactor}> https://cdn.discordapp.com/attachments/758301217343537162/1080315882661756948/SPOILER_Screenshot_2023-01-25_9.png ")
+                    await asyncio.sleep(20)
+                    await sendDm(user_reactor.id,"https://discord.gg/5z93XyFjBy")
+                    await user_reactor.kick()
+
+
     if emoji == "🦇":
         #await message.author.timeout(timedelta(seconds=47))
         await message.channel.send("https://cdn.discordapp.com/attachments/758296682659184640/1082495176276181062/basedBatman.mp4",delete_after=20)
+    if reactor == 288660324842864642:
+        if emoji == "🤣":
+            await message.channel.send("https://cdn.discordapp.com/attachments/1001195254025826366/1164899001494163477/My_Laugh_Is_Wrong_-_Jimmy_Carr___Jimmy_Carr_on_Laughing___Jimmy_Carr_1_online-video-cutter.com.mp4?ex=6544e3bc&is=65326ebc&hm=dcf1f20a6810d81dfcca62beb2ddf52fd02871f7c2dd6f461933a7a286b6bdf7&",delete_after=3000)
 #================================================================================================
 
 # Load Tokens
