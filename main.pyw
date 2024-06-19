@@ -71,7 +71,9 @@ async def add_roles(member, member_info):
         for guild_role in guild_roles:
             if role == guild_role.id:
                 try:
+                    
                     await member.add_roles(guild_role)
+
                 except:
                     pass
 
@@ -407,16 +409,20 @@ async def on_ready():
     await check_all_kick_members()
 
     source_channel = client.get_channel(853454311521386548)  # get the source channel object
-    target_channel = client.get_channel(1114166935307964438)  # get the target channel object
+    target_channel = [client.get_channel(1114166935307964438), client.get_channel(1242111825193992204)]  # get the target channel object
     user_id = 956672052251721748  # get the user ID you want to filter
     file = open("message_ids.txt", "a+")  # open a file in append and read mode
     file.seek(0)  # move the cursor to the beginning of the file
     message_ids = file.read().splitlines()  # read the file and split it by lines
     if source_channel is not None:
-        async for message in source_channel.history(limit=20):  # iterate over up to 100 messages from the source channel
+        async for message in source_channel.history(limit=10):  # iterate over up to 100 messages from the source channel
             if message.author.id == user_id and str(message.id) not in message_ids:  # check if the message author's ID matches the user ID and the message ID is not in the file
-                await target_channel.send(message.content, tts=message.tts,files=[await attch.to_file() for attch in message.attachments],embed=message.embeds[0] if message.embeds else None)  # send the message content, tts, files and embed to the target channel
+                for embed in message.embeds:  # iterate over all embeds in the message
+                    for channel in target_channel:
+                        await channel.send(message.content, tts=message.tts,
+                                           files=[await attch.to_file() for attch in message.attachments], embed=embed)
                 file.write(str(message.id) + "\n")  # write the message ID to the file
+
     else:
         print(f'Channel with id {"سيرفر عمر"} not found')
     file.close()  # close the file
@@ -433,6 +439,7 @@ async def on_member_join(member):
     for index, user in enumerate(kicked_user):
         if user["user"] == member.id:
             await add_roles(member, user)
+
             #kicked_user.pop(index)
             # with open("users.json", "w") as file:
             #     json.dump(kicked_user, file)
