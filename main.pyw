@@ -6,9 +6,8 @@ from variables import bannedWords,alzgrt
 from telegram.ext import Updater
 from requests import get
 from datetime import timedelta
-from discord.ext import tasks
 import json
-from discord.ext import commands
+from discord.ext import commands, tasks
 import openai as gpt
 from dotenv import load_dotenv
 import random
@@ -23,18 +22,20 @@ telegram_bot = Updater("5345322467:AAHxdqp9vzOUZU4CQCHFTfdnrgb0ucCb_Cs")
 
 
 async def sendDm(id, message, delete=False):
-    user = await client.fetch_user(id)
+    try:
+        user = await client.fetch_user(id)
 
-    if user is not None:
-        if user.dm_channel is None:
-            await user.create_dm()
+        if user is not None:
+            if user.dm_channel is None:
+                await user.create_dm()
 
-        if not delete:
-            await user.dm_channel.send(message)
-        else:
-            await user.dm_channel.send(message, delete_after=0.1)
-        print(f"Private message sent")
-
+            if not delete:
+                await user.dm_channel.send(message)
+            else:
+                await user.dm_channel.send(message, delete_after=0.1)
+            print(f"Private message sent")
+    except:
+        print("lh e]vj hvsg gi")
 
 async def send_video(message, chatId):
     url = ''
@@ -106,29 +107,108 @@ def isMeme(message):
 #     return True
 
 async def steal(message):
-     
-     if message.author.id == 1001189121332617327:
+    try:
+        if message.author.id == 1001189121332617327:
+            try:
+                await message.channel.send(embed=message.embeds[0])
+                await message.delete()
+            except discord.errors.NotFound:
+                # Message was already deleted, just continue
+                pass
+            except IndexError:
+                # No embeds in the message
+                pass
+            return True
 
-         #print(message.embeds[0].description)
+        if message.author.id == 282859044593598464:
+            try:
+                # Handle empty content (messages with only attachments/embeds)
+                content = message.content or " "  # Fallback to space if empty
 
-         await message.channel.send(embed=message.embeds[0])
-         await message.delete()
-         return True
-     if message.author.id == 282859044593598464:
-         # print(message.embeds[0].description)
+                # Re-upload attachments
+                files = [await attachment.to_file() for attachment in message.attachments]
 
-         await message.channel.send(message.content)
-         await message.delete()
-         return True
-######################################
-         if message.author.id == 672822334641537041:
-             if message.channel.id == 853454311521386548: # check if the message is from the source channel
-                target_channel = client.get_channel(1114150009106079756) # get the target channel object
-                await target_channel.send(message.content, tts=message.tts, files=[await attch.to_file() for attch in message.attachments], embed=message.embeds[0] if message.embeds else None) # send the message content, tts, files and embed to the target channel
+                # Send cloned message with content, files, and embeds
+                await message.channel.send(
+                    content=content,
+                    files=files,
+                    embeds=message.embeds
+                )
+
+                # Delete original message
+                await message.delete()
+
+            except discord.NotFound:
+                pass  # Message already deleted
+            except discord.Forbidden:
+                print(f"Missing permissions to delete in {message.channel.name}")
+            except Exception as e:
+                print(f"Unexpected error: {type(e).__name__}: {e}")
+
+            return  # Don't return True, just return
+
+        if message.author.id == 672822334641537041:
+            if message.channel.id == 853454311521386548:  # check if the message is from the source channel
+                try:
+                    target_channel = client.get_channel(1114150009106079756)  # get the target channel object
+                    if target_channel:
+                        files = [await attch.to_file() for attch in message.attachments]
+                        embed = message.embeds[0] if message.embeds else None
+                        await target_channel.send(
+                            content=message.content,
+                            tts=message.tts,
+                            files=files,
+                            embed=embed
+                        )
+                except Exception as e:
+                    print(f"Error forwarding message: {e}")
                 return True
-     return False
+    except Exception as e:
+        print(f"Error in steal function: {e}")
+    return False
+
 
 #######################################
+@tasks.loop(seconds=1000)  # Run every 10 seconds
+async def check_new_messages():
+    source_channel = client.get_channel(853454311521386548)
+    target_channels = [client.get_channel(1114166935307964438), client.get_channel(1242111825193992204)]
+    user_id = 956672052251721748
+
+    if not source_channel:
+        print(f'Source channel not found')
+        return
+
+    # Load processed message IDs
+    try:
+        with open("message_ids.txt", "r") as file:
+            processed_messages = set(file.read().splitlines())
+    except FileNotFoundError:
+        processed_messages = set()
+
+    # Get new messages
+    async for message in source_channel.history(limit=50):  # Check last 50 messages
+        if message.author.id == user_id and str(message.id) not in processed_messages:
+            # Process message
+            for target_channel in target_channels:
+                if target_channel:
+                    try:
+                        files = [await attachment.to_file() for attachment in message.attachments]
+                        for embed in message.embeds:
+                            await target_channel.send(
+                                content=message.content,
+                                tts=message.tts,
+                                files=files,
+                                embed=embed
+                            )
+                    except Exception as e:
+                        print(f"Error sending message to {target_channel.name}: {e}")
+
+            # Mark message as processed
+            processed_messages.add(str(message.id))
+            with open("message_ids.txt", "a") as file:
+                file.write(f"{message.id}\n")
+
 
 
 @client.event
@@ -245,36 +325,36 @@ async def on_message(message):
 
 
 
-
-    if message.author.bot:
-        return
-
-    if client.user in message.mentions:
-        await message.channel.typing()  # Appear as typing while processing.
-
-        # Save user message in the log
-        chat_log = []
-        chat_log.append({"role": "user", "content": message.content})
-
-        # Get response
-        response = gpt.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=chat_log
-        )
-        gptResponse = response['choices'][0]['message']['content']
-
-        # Save Response message in the log
-        chat_log.append({"role": "assistant", "content": gptResponse.strip("\n").strip()})
-
-        # Send Response to discord room.
-        await message.channel.send("``` {} ```".format(gptResponse))
-
-        # Append to log file
-        with open("log.txt", "a", encoding='utf-8') as file:
-            now = datetime.datetime.now()
-            file.write(now.strftime("%Y-%m-%d %H:%M:%S"))
-            file.write("\nUser:\n {}.\n".format(message.content))
-            file.write("GPT:\n {}.\n\n".format(gptResponse))
+#chat gptai
+    # if message.author.bot:
+    #     return
+    #
+    # if client.user in message.mentions:
+    #     await message.channel.typing()  # Appear as typing while processing.
+    #
+    #     # Save user message in the log
+    #     chat_log = []
+    #     chat_log.append({"role": "user", "content": message.content})
+    #
+    #     # Get response
+    #     response = gpt.ChatCompletion.create(
+    #         model="gpt-3.5-turbo",
+    #         messages=chat_log
+    #     )
+    #     gptResponse = response['choices'][0]['message']['content']
+    #
+    #     # Save Response message in the log
+    #     chat_log.append({"role": "assistant", "content": gptResponse.strip("\n").strip()})
+    #
+    #     # Send Response to discord room.
+    #     await message.channel.send("``` {} ```".format(gptResponse))
+    #
+    #     # Append to log file
+    #     with open("log.txt", "a", encoding='utf-8') as file:
+    #         now = datetime.datetime.now()
+    #         file.write(now.strftime("%Y-%m-%d %H:%M:%S"))
+    #         file.write("\nUser:\n {}.\n".format(message.content))
+    #         file.write("GPT:\n {}.\n\n".format(gptResponse))
 
 
 
@@ -318,7 +398,12 @@ async def check_all_kick_members():
             json.dump(kicked_members, file)
 
 
+ALLOWED_GUILD_ID = 691164607749947432  # Replace with your server ID
+
 async def save_data(member):
+    if member.guild.id != ALLOWED_GUILD_ID:
+        return  # Exit if the member is not from the allowed server
+
     # await sendDm(member.id, "https://discord.gg/5z93XyFjBy")
 
     roles = [role.id for role in member.roles]
@@ -405,6 +490,7 @@ async def on_ready():
 
     print('We have logged in as {0.user}'.format(client))
     channel = client.get_channel(691164607749947436)
+    check_new_messages.start()  # Start the message checking loop
     #await channel.send('https://cdn.discordapp.com/attachments/976019318154342440/1062680976762880071/RPReplay_Final1656509018.mov ',delete_after=10)
     await check_all_kick_members()
 
@@ -490,10 +576,10 @@ async def on_raw_reaction_add(payload):
 
     if emoji == "🦵":
         if user_reactor.id == 542304547583033344:
-            await message.channel.send("ما اسمع كلام مصري  https://tenor.com/view/%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84-%D9%82%D9%88%D9%8A-%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84%D9%85%D8%B9%D8%B6%D9%84-%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84%D9%82%D9%88%D9%8A-%D8%A7%D8%AD%D9%85%D8%AF%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84-gif-25117516",delete_after=200)
+            await message.channel.send("ما اسمع كلام مصري  https://tenor.com/view/%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84-%D9%82%D9%88%D9%8A-%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84%D9%85%D8%B9%D8%B6%D9%84-%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84%D9%82%D9%88%D9%8A-%D8%A7%D8%AD%D9%85%D8%AF%D8%A7%D9%84%D9%83%D9%8A%D8%A7%D9%84-gif-25117516",delete_after=900)
             return
         else:
-            if random.random() >=0.50 :
+            if random.random() >=0.01 :
 
                 try:
                     # if reactor.id == 542304547583033344:
@@ -525,9 +611,9 @@ async def on_raw_reaction_add(payload):
     if emoji == "🦇":
         #await message.author.timeout(timedelta(seconds=47))
         await message.channel.send("https://cdn.discordapp.com/attachments/758296682659184640/1082495176276181062/basedBatman.mp4",delete_after=20)
-    if reactor == 288660324842864642:
-        if emoji == "🤣":
-            await message.channel.send("https://cdn.discordapp.com/attachments/1001195254025826366/1164899001494163477/My_Laugh_Is_Wrong_-_Jimmy_Carr___Jimmy_Carr_on_Laughing___Jimmy_Carr_1_online-video-cutter.com.mp4?ex=6544e3bc&is=65326ebc&hm=dcf1f20a6810d81dfcca62beb2ddf52fd02871f7c2dd6f461933a7a286b6bdf7&",delete_after=3000)
+    #if reactor == 288660324842864642:
+        #if emoji == "🤣":
+            #await message.channel.send("https://cdn.discordapp.com/attachments/1001195254025826366/1164899001494163477/My_Laugh_Is_Wrong_-_Jimmy_Carr___Jimmy_Carr_on_Laughing___Jimmy_Carr_1_online-video-cutter.com.mp4?ex=6544e3bc&is=65326ebc&hm=dcf1f20a6810d81dfcca62beb2ddf52fd02871f7c2dd6f461933a7a286b6bdf7&",delete_after=3000)
 #================================================================================================
 
 # Load Tokens
@@ -544,4 +630,4 @@ gpt.api_key = "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"
 
 
 
-client.run('OTc2NDkwNDA0NTIwMjg4Mjc2.Gqipb5.wNkNe_eZVNIkMCyircic0LdEbDqRICwu9IgNe4')
+client.run('@@@')
